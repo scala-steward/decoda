@@ -1,5 +1,9 @@
+val scala3Version = "3.8.0-RC3"
+
+scalaVersion := scala3Version
+
 val sharedSettings = Seq(
-  scalaVersion := "3.7.1",
+  scalaVersion := scala3Version,
   scalacOptions ++= Seq(
     "-new-syntax",
     // "-no-indent",
@@ -12,14 +16,13 @@ val sharedSettings = Seq(
     "-rewrite",
     "-source:future"
   ),
-  javacOptions ++= Seq("-source", "24", "-target", "24")
+  javacOptions ++= Seq("-source", "25", "-target", "25")
 )
 
 lazy val decoda =
   // select supported platforms
   crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Full) // [Pure, Full, Dummy], default: CrossType.Full
-    .withoutSuffixFor(JVMPlatform)
     .in(file("decoda"))
     .settings(sharedSettings *)
     .settings(

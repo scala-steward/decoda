@@ -62,35 +62,35 @@ object Encoder:
   type EncoderField[T, S] = DataEncoder[S] ?=> Encoder[T]
   type EncoderCreator[T] = JsonCreator ?=> Encoder[T]
 
-  given DataEncoder[String] with
+  given DataEncoder[String]:
     override def encode(v: String): Any = v
 
-  given DataEncoder[Short] with
+  given DataEncoder[Short]:
     override def encode(v: Short): Any = v
 
-  given DataEncoder[Int] with
+  given DataEncoder[Int]:
     override def encode(v: Int): Any = v
 
-  given DataEncoder[Long] with
+  given DataEncoder[Long]:
     override def encode(v: Long): Any = v
 
-  given DataEncoder[Float] with
+  given DataEncoder[Float]:
     override def encode(v: Float): Any = v
 
-  given DataEncoder[Double] with
+  given DataEncoder[Double]:
     override def encode(v: Double): Any = v
 
-  given DataEncoder[Boolean] with
+  given DataEncoder[Boolean]:
     override def encode(v: Boolean): Any = v
 
-  given DataEncoder[Date] with
+  given DataEncoder[Date]:
     override def encode(v: Date): Any = v
 
-  given OptionEncoderCodec[T](using encoder: DataEncoder[T]): DataEncoder[Option[T]] with
+  given OptionEncoderCodec : [T: DataEncoder as encoder] => DataEncoder[Option[T]]:
     override def encode(v: Option[T]): Any =
       v.map(encoder.encode).orNull
 
-  given SeqEncoderCodec[T](using encoder: DataEncoder[T]): DataEncoder[Seq[T]] with
+  given SeqEncoderCodec: [T: DataEncoder as encoder] => DataEncoder[Seq[T]]:
     override def encode(vs: Seq[T]): Any =
       vs.map(encoder.encode)
 
@@ -100,9 +100,10 @@ object Encoder:
       vs.map(encoder.encode)
    */
 
-  given SetEncoderCodec[T](using encoder: DataEncoder[T]): DataEncoder[Set[T]] with
+  given SetEncoderCodec: [T: DataEncoder as encoder] => DataEncoder[Set[T]]:
     override def encode(vs: Set[T]): Any =
       vs.map(encoder.encode)
+
 
   inline def typ[T]: EncoderCreator[T] =
     new Encoder

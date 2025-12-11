@@ -124,10 +124,9 @@ object defs:
       objAst.props
     )
 
-  given JsonParser:
-    override def parse(s: String): base.Json = Json.parse(s)
+  given jsonParser: JsonParser = (s: String) => Json.parse(s)
 
-  given JsonCreator:
-    override def mkObject: base.JsonObject = defs.JsonObject()
+  given jsonCreator: JsonCreator = new JsonCreator:
+    override def mkObject: base.JsonObject = JsonObject()
 
-    override def mkArray: base.JsonArray = defs.JsonArray()
+    override def mkArray: base.JsonArray = JsonArray()
