@@ -113,9 +113,8 @@ object Decoder:
       if v == null
       then None
       else Some(decoder.decode(v))
-  
 
-  given SeqDecoderCodec: [T: DataDecoder as decoder] => DataDecoder[Seq[T]] :
+  given SeqDecoderCodec: [T: DataDecoder as decoder] => DataDecoder[Seq[T]]:
     override def decode(v: Any): Seq[T] =
       v match
         case arr: JsonArray =>

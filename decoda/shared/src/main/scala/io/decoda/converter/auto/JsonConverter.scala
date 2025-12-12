@@ -45,10 +45,10 @@ object JsonConverter:
 
     override def fromJson(value: Any): Int =
       value match
-        case _: Int => value.asInstanceOf[Int]
-        case _: Long => value.asInstanceOf[Long].toInt
+        case _: Int   => value.asInstanceOf[Int]
+        case _: Long  => value.asInstanceOf[Long].toInt
         case _: Short => value.asInstanceOf[Short].toInt
-        case _ => throw new JsonCodecException(s"can't parse ${value} to Int")
+        case _        => throw new JsonCodecException(s"can't parse ${value} to Int")
   }
 
   given longConv: JsonConverter[Long] = new JsonConverter[Long] {
@@ -58,13 +58,13 @@ object JsonConverter:
 
     override def fromJson(value: Any): Long =
       value match
-        case _: Int => value.asInstanceOf[Int].toLong
-        case _: Long => value.asInstanceOf[Long]
+        case _: Int   => value.asInstanceOf[Int].toLong
+        case _: Long  => value.asInstanceOf[Long]
         case _: Short => value.asInstanceOf[Short].toLong
-        case _ => throw new JsonCodecException(s"can't parse ${value} to Int")
+        case _        => throw new JsonCodecException(s"can't parse ${value} to Int")
   }
 
-  given stringConv: JsonConverter[String]= new JsonConverter[String] {
+  given stringConv: JsonConverter[String] = new JsonConverter[String] {
     extension (a: String)
       override def toJsonValue: Json = JsonValue(a)
       override def toJson: String = a
@@ -96,10 +96,10 @@ object JsonConverter:
 
     override def fromJson(value: Any): Short =
       value match
-        case _: Int => value.asInstanceOf[Int].toShort
-        case _: Long => value.asInstanceOf[Long].toShort
+        case _: Int   => value.asInstanceOf[Int].toShort
+        case _: Long  => value.asInstanceOf[Long].toShort
         case _: Short => value.asInstanceOf[Short]
-        case _ => throw new JsonCodecException(s"can't parse ${value} to Short")
+        case _        => throw new JsonCodecException(s"can't parse ${value} to Short")
   }
 
   given doubleConv: JsonConverter[Double] = new JsonConverter[Double] {
@@ -110,7 +110,7 @@ object JsonConverter:
     override def fromJson(value: Any): Double =
       value match
         case _: Double => value.asInstanceOf[Double]
-        case _: Float => value.asInstanceOf[Float].toDouble
+        case _: Float  => value.asInstanceOf[Float].toDouble
         case _ =>
           throw new JsonCodecException(s"can't parse ${value} to Double")
   }
@@ -123,7 +123,7 @@ object JsonConverter:
     override def fromJson(value: Any): Float =
       value match
         case _: Double => value.asInstanceOf[Double].toFloat
-        case _: Float => value.asInstanceOf[Float]
+        case _: Float  => value.asInstanceOf[Float]
         case _ =>
           throw new JsonCodecException(s"can't parse ${value} to Float")
   }
@@ -140,7 +140,7 @@ object JsonConverter:
           throw new JsonCodecException(s"can't parse ${value} to Null")
   }
 
-  inline given dateConv: JsonConverter[Date] = new JsonConverter[Date]{
+  inline given dateConv: JsonConverter[Date] = new JsonConverter[Date] {
     extension (a: Date)
       override def toJsonValue: Json = JsonValue(a.toString)
       override def toJson: String = a.toString
@@ -163,10 +163,10 @@ object JsonConverter:
     def fromJson(value: Any): Option[A] =
       value match
         case null => None
-        case _ => Some(JsonConverter[A].fromJson(value))
+        case _    => Some(JsonConverter[A].fromJson(value))
   }
 
-  given mapConv: [A: JsonConverter] => JsonCreator =>  JsonConverter[Map[String, A]] {
+  given mapConv: [A: JsonConverter] => JsonCreator => JsonConverter[Map[String, A]] {
     extension (m: Map[String, A])
       override def toJsonValue: Json =
         summon[JsonCreator].fromMap(m)
@@ -181,35 +181,37 @@ object JsonConverter:
         case _ => Map.empty
   }
 
-  given immutableMapConv: [A: JsonConverter] => JsonCreator => JsonConverter[immutable.Map[String, A]] =  new JsonConverter[immutable.Map[String, A]] {
-    extension (m: immutable.Map[String, A])
-      def toJsonValue: Json =
-        summon[JsonCreator].fromMap(m)
+  given immutableMapConv: [A: JsonConverter] => JsonCreator => JsonConverter[immutable.Map[String, A]] =
+    new JsonConverter[immutable.Map[String, A]] {
+      extension (m: immutable.Map[String, A])
+        def toJsonValue: Json =
+          summon[JsonCreator].fromMap(m)
 
-      def toJson: String =
-        summon[JsonCreator].fromMap(m).stringify()
+        def toJson: String =
+          summon[JsonCreator].fromMap(m).stringify()
 
-    def fromJson(value: Any): Map[String, A] =
-      value match
-        case obj: JsonObject =>
-          immutable.Map.from(jsonObjectToMap(obj))
-        case _ => immutable.Map.empty
-  }
+      def fromJson(value: Any): Map[String, A] =
+        value match
+          case obj: JsonObject =>
+            immutable.Map.from(jsonObjectToMap(obj))
+          case _ => immutable.Map.empty
+    }
 
-  given arrayConv: [A : {ClassTag, JsonConverter}] => JsonCreator => JsonConverter[Array[A]] = new JsonConverter[Array[A]] {
-    extension (a: Array[A])
-      def toJsonValue: Json =
-        summon[JsonCreator].fromIterable(a)
+  given arrayConv: [A: {ClassTag, JsonConverter}] => JsonCreator => JsonConverter[Array[A]] =
+    new JsonConverter[Array[A]] {
+      extension (a: Array[A])
+        def toJsonValue: Json =
+          summon[JsonCreator].fromIterable(a)
 
-      def toJson: String =
-        summon[JsonCreator].fromIterable(a).stringify()
+        def toJson: String =
+          summon[JsonCreator].fromIterable(a).stringify()
 
-    def fromJson(value: Any): Array[A] =
-      value match
-        case arr: JsonArray =>
-          jsonArrayToCollection(arr, Array.newBuilder)
-        case _ => Array.empty
-  }
+      def fromJson(value: Any): Array[A] =
+        value match
+          case arr: JsonArray =>
+            jsonArrayToCollection(arr, Array.newBuilder)
+          case _ => Array.empty
+    }
 
   given iterableConv: [A: JsonConverter] => JsonCreator => JsonConverter[Iterable[A]] = new JsonConverter[Iterable[A]] {
     extension (a: Iterable[A])
@@ -241,35 +243,37 @@ object JsonConverter:
         case _ => Seq.empty
   }
 
-  given immutableSeqConv: [A: JsonConverter] => JsonCreator => JsonConverter[immutable.Seq[A]] = new JsonConverter[immutable.Seq[A]] {
-    extension (a: immutable.Seq[A])
-      def toJsonValue: Json =
-        summon[JsonCreator].fromIterable(a)
+  given immutableSeqConv: [A: JsonConverter] => JsonCreator => JsonConverter[immutable.Seq[A]] =
+    new JsonConverter[immutable.Seq[A]] {
+      extension (a: immutable.Seq[A])
+        def toJsonValue: Json =
+          summon[JsonCreator].fromIterable(a)
 
-      def toJson: String =
-        summon[JsonCreator].fromIterable(a).stringify()
+        def toJson: String =
+          summon[JsonCreator].fromIterable(a).stringify()
 
-    def fromJson(value: Any): immutable.Seq[A] =
-      value match
-        case arr: JsonArray =>
-          jsonArrayToCollection(arr, immutable.Seq.newBuilder)
-        case _ => Seq.empty
-  }
+      def fromJson(value: Any): immutable.Seq[A] =
+        value match
+          case arr: JsonArray =>
+            jsonArrayToCollection(arr, immutable.Seq.newBuilder)
+          case _ => Seq.empty
+    }
 
-  given setCodec: [A: JsonConverter] => JsonCreator => JsonConverter[mutable.Set[A]] = new JsonConverter[mutable.Set[A]] {
-    extension (a: mutable.Set[A])
-      def toJsonValue: Json =
-        summon[JsonCreator].fromIterable(a)
+  given setCodec: [A: JsonConverter] => JsonCreator => JsonConverter[mutable.Set[A]] =
+    new JsonConverter[mutable.Set[A]] {
+      extension (a: mutable.Set[A])
+        def toJsonValue: Json =
+          summon[JsonCreator].fromIterable(a)
 
-      def toJson: String =
-        summon[JsonCreator].fromIterable(a).stringify()
+        def toJson: String =
+          summon[JsonCreator].fromIterable(a).stringify()
 
-    def fromJson(value: Any): mutable.Set[A] =
-      value match
-        case arr: JsonArray =>
-          jsonArrayToCollection(arr, mutable.HashSet.newBuilder)
-        case _ => mutable.HashSet.empty
-  }
+      def fromJson(value: Any): mutable.Set[A] =
+        value match
+          case arr: JsonArray =>
+            jsonArrayToCollection(arr, mutable.HashSet.newBuilder)
+          case _ => mutable.HashSet.empty
+    }
 
   given immutableSetCodec: [A: JsonConverter] => JsonCreator => JsonConverter[Set[A]] = new JsonConverter[Set[A]] {
     extension (a: Set[A])
@@ -316,20 +320,21 @@ object JsonConverter:
         case _ => Vector.empty
   }
 
-  given bufferConv: [A: JsonConverter] => JsonCreator => JsonConverter[mutable.Buffer[A]] = new JsonConverter[mutable.Buffer[A]] {
-    extension (a: mutable.Buffer[A])
-      def toJsonValue: Json =
-        summon[JsonCreator].fromIterable(a)
+  given bufferConv: [A: JsonConverter] => JsonCreator => JsonConverter[mutable.Buffer[A]] =
+    new JsonConverter[mutable.Buffer[A]] {
+      extension (a: mutable.Buffer[A])
+        def toJsonValue: Json =
+          summon[JsonCreator].fromIterable(a)
 
-      def toJson: String =
-        summon[JsonCreator].fromIterable(a).stringify()
+        def toJson: String =
+          summon[JsonCreator].fromIterable(a).stringify()
 
-    def fromJson(value: Any): mutable.Buffer[A] =
-      value match
-        case arr: JsonArray =>
-          jsonArrayToCollection(arr, mutable.Buffer.newBuilder)
-        case _ => mutable.Buffer.empty
-  }
+      def fromJson(value: Any): mutable.Buffer[A] =
+        value match
+          case arr: JsonArray =>
+            jsonArrayToCollection(arr, mutable.Buffer.newBuilder)
+          case _ => mutable.Buffer.empty
+    }
 
   private def jsonObjectToMap[A](obj: JsonObject)(using
       nc: JsonConverter[A]

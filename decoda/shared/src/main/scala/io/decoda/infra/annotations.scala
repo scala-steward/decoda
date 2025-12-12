@@ -9,7 +9,7 @@ object annotations:
     case NumStr
     case BoolStr
     case DateStr[T](pattern: String)(using
-                                     val dateConverter: JsonDateConverter
+        val dateConverter: JsonDateConverter
     )
     case Auto
 

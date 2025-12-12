@@ -86,7 +86,7 @@ object Encoder:
   given DataEncoder[Date]:
     override def encode(v: Date): Any = v
 
-  given OptionEncoderCodec : [T: DataEncoder as encoder] => DataEncoder[Option[T]]:
+  given OptionEncoderCodec: [T: DataEncoder as encoder] => DataEncoder[Option[T]]:
     override def encode(v: Option[T]): Any =
       v.map(encoder.encode).orNull
 
@@ -103,7 +103,6 @@ object Encoder:
   given SetEncoderCodec: [T: DataEncoder as encoder] => DataEncoder[Set[T]]:
     override def encode(vs: Set[T]): Any =
       vs.map(encoder.encode)
-
 
   inline def typ[T]: EncoderCreator[T] =
     new Encoder

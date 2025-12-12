@@ -11,4 +11,4 @@ class ArrayProduct(arr: Array[Any]) extends Product:
 
   override def canEqual(that: Any): Boolean = that match
     case ap: ArrayProduct if ap.productArity == productArity => true
-    case _ => false
+    case _                                                   => false
